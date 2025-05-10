@@ -1,0 +1,35 @@
+# Node
+node_modules/
+npm-debug.log*
+.pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.development
+.env.production
+
+# React
+frontend/.eslintcache
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage/
+frontend/build/
+
+# Database
+*.sql
+*.db
+*.dump
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# System
+.DS_Store
+Thumbs.db

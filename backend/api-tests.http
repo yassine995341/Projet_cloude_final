@@ -1,0 +1,21 @@
+### Register a new user
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "test123"
+}
+
+### Login
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "test123"
+}
+
+### Get books (after login - use the token from login response)
+GET http://localhost:3001/books
+Authorization: Bearer YOUR_TOKEN_HERE
