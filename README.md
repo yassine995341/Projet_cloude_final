@@ -11,6 +11,15 @@ Navigate to the project directory:
 2)Install dependencies for the frontend:
         cd ../frontend
         npm install
+  3) create a file name ".env" and paste  this 
+          DB_HOST=localhost
+          DB_USER=root
+          DB_PASSWORD=0000
+          DB_NAME=book_collection
+          JWT_SECRET=your-secret-key
+          PORT=3001
+          GOOGLE_BOOKS_API_KEY=AIzaSyB6bS2_14SXsyGF_3sUjG-tBtjp7ld0554
+    and put this file in backend folder
                                     usage
 1)Start the backend server:
     cd backend
