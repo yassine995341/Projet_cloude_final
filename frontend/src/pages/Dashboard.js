@@ -1,155 +1,105 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../services/auth';
-import api from '../services/api';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { getUserBooks } from '../services/api';
 
-function Dashboard({ setIsAuthenticated }) {
+function Dashboard() {
   const [books, setBooks] = useState([]);
-  const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
-  const [year, setYear] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBooks = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const { data } = await api.get('/books');
-        setBooks(data);
+        const response = await getUserBooks();
+        setBooks(response.data);
       } catch (err) {
-        setError('Failed to load books');
+        setError('Failed to fetch books');
       } finally {
         setLoading(false);
       }
     };
+
     fetchBooks();
   }, []);
 
-  const handleAddBook = async (e) => {
-    e.preventDefault();
-    try {
-      const { data } = await api.post('/books', { title, author, year });
-      setBooks([...books, data]);
-      setTitle('');
-      setAuthor('');
-      setYear('');
-    } catch (err) {
-      setError('Failed to add book');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/books/${id}`);
-      setBooks(books.filter(book => book.id !== id));
-    } catch (err) {
-      setError('Failed to delete book');
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setIsAuthenticated(false);
-      navigate('/login');
-    } catch (err) {
-      setError('Logout failed');
-    }
+  const handleSearchClick = () => {
+    navigate('/search');
   };
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>My Book Collection</h1>
-        <button 
-          onClick={handleLogout} 
-          className="btn btn-danger"
-        >
-          Logout
-        </button>
-      </div>
-
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      <form onSubmit={handleAddBook} className="mb-4">
-        <div className="row g-3">
-          <div className="col-md-4">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div className="col-md-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Author"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
-              required
-            />
-          </div>
-          <div className="col-md-3">
-            <input
-              type="number"
-              className="form-control"
-              placeholder="Year"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-            />
-          </div>
-          <div className="col-md-2">
-            <button 
-              type="submit" 
-              className="btn btn-primary w-100"
-              disabled={loading}
-            >
-              {loading ? 'Adding...' : 'Add Book'}
-            </button>
-          </div>
+        <h1>My Dashboard</h1>
+        <div>
+          <button className="btn btn-primary me-2" onClick={handleSearchClick}>Search Books</button>
+          <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
         </div>
-      </form>
-
-      {loading ? (
-        <div className="text-center">Loading books...</div>
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Year</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map((book) => (
-                <tr key={book.id}>
-                  <td>{book.title}</td>
-                  <td>{book.author}</td>
-                  <td>{book.year || '-'}</td>
-                  <td>
-                    <button
-                      onClick={() => handleDelete(book.id)}
-                      className="btn btn-sm btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      </div>
+      
+      {loading && (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
       )}
+
+      {error && <div className="alert alert-danger">{error}</div>}
+      
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-header">
+              <h2 className="mb-0">My Books</h2>
+            </div>
+            <div className="card-body">
+              {books.length > 0 ? (
+                <div className="row row-cols-1 row-cols-md-3 g-4">
+                  {books.map(book => (
+                    <div key={book.id} className="col">
+                      <div className="card h-100">
+                        {book.imageLinks?.thumbnail && (
+                          <img 
+                            src={book.imageLinks.thumbnail} 
+                            className="card-img-top" 
+                            alt={book.title}
+                            style={{ height: '200px', objectFit: 'cover' }}
+                          />
+                        )}
+                        <div className="card-body">
+                          <h5 className="card-title">{book.title}</h5>
+                          <p className="card-text">
+                            By {book.authors?.join(', ') || 'Unknown Author'}
+                          </p>
+                          {book.description && (
+                            <p className="card-text text-muted">
+                              {book.description.substring(0, 150)}...
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <p className="mb-3">No books found. Start by searching and adding some books!</p>
+                  <button className="btn btn-primary" onClick={handleSearchClick}>
+                    Search Books
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

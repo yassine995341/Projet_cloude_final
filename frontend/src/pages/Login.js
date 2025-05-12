@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { login, register } from '../services/api';
 
 function AuthPage({ setIsAuthenticated }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -25,17 +25,17 @@ function AuthPage({ setIsAuthenticated }) {
     setError('');
 
     try {
-      const endpoint = isLogin ? '/auth/login' : '/auth/register';
-      const { data } = await api.post(endpoint, form);
+      const { data } = isLogin 
+        ? await login(form.username, form.password)
+        : await register(form.username, form.password);
 
       if (isLogin && data.token) {
         localStorage.setItem('token', data.token);
         setIsAuthenticated(true);
-        navigate('/');
+        navigate('/dashboard');
       } else if (!isLogin) {
-        // After successful registration, switch to login view
         setIsLogin(true);
-        setError(''); // Clear any errors
+        setError('');
         alert('Registration successful! Please login.');
       }
     } catch (err) {

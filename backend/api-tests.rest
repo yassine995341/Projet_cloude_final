@@ -1,0 +1,43 @@
+*### Authentication Endpoints ###
+
+### Register a new user
+POST http://localhost:3001/auth/register
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "test123"
+}
+
+### Login
+POST http://localhost:3001/auth/login
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "password": "test123"
+}
+
+### Books Endpoints ###
+
+### Get all books (Protected Route)
+GET http://localhost:3001/api/books
+Authorization: Bearer YOUR_TOKEN_HERE
+
+### Add a new book (Protected Route)
+POST http://localhost:3001/api/books
+Content-Type: application/json
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+    "title": "Test Book",
+    "author": "Test Author",
+    "year": 2024
+}
+
+### Usage Instructions ###
+# 1. First run the register request to create a new user
+# 2. Then run the login request to get the authentication token
+# 3. Copy the token from the login response
+# 4. Replace YOUR_TOKEN_HERE in the subsequent requests with the actual token
+# 5. Make sure to include the Bearer prefix before the token*
